@@ -4,6 +4,7 @@
 
 CleverBook is a full-stack educational application designed to diagnose cognitive misconceptions and provide personalized learning paths. By leveraging the Google Gemini API, CleverBook acts as an intelligent AI Tutor that adapts to whether a user is in School or College, tracking their syllabus progress in real-time.
 
+https://github.com/user-attachments/assets/46c30f9a-5f60-48de-9d1a-8d73ffbbe7a5
 ---
 
 ##  Live Links

@@ -23,7 +23,7 @@ export function AITutorWidget() {
     if (!question.trim() || !studentAnswer.trim()) return;
     setIsLoading(true);
     try {
-      const res = await fetch("http://localhost:8000/api/v1/tutor/diagnose", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/tutor/diagnose`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question, student_answer: studentAnswer })
@@ -46,7 +46,7 @@ export function AITutorWidget() {
     setPhase(2);
     setIsVisualizing(true);
     try {
-      const res = await fetch("http://localhost:8000/api/v1/tutor/visualize", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/tutor/visualize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 

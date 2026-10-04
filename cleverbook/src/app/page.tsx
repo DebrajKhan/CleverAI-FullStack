@@ -1,9 +1,149 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { motion, Variants } from "framer-motion";
-import { BookOpen, Sparkles, Star } from "lucide-react";
+import { motion, Variants, AnimatePresence } from "framer-motion";
+import { BookOpen, Sparkles, Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { AntigravityCard } from "@/components/dashboard/HeroMetrics";
+import { Playfair_Display } from "next/font/google";
+
+const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "500"] });
+
+function StackedImageCarousel() {
+  const [frontIndex, setFrontIndex] = useState(0);
+  const images = ['/images_1.jpeg', '/images_2.jpeg', '/images_3.jpg', '/images_4.jpeg'];
+
+  const handleClick = () => {
+    setFrontIndex((prev) => (prev + 1) % images.length);
+  };
+
+  return (
+    <div className="relative w-full aspect-square md:aspect-[4/3] flex items-center justify-center cursor-pointer" onClick={handleClick}>
+      {images.map((src, i) => {
+        const offset = (i - frontIndex + images.length) % images.length;
+        return (
+          <motion.img
+            key={src}
+            src={src}
+            animate={{
+              scale: 1 - offset * 0.05,
+              y: offset * 20,
+              zIndex: images.length - offset,
+              opacity: 1 - offset * 0.2,
+            }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="absolute w-3/4 h-3/4 object-cover rounded-3xl shadow-2xl border border-slate-200 bg-slate-100"
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+function InteractiveReviewCarousel() {
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const REVIEWS = [
+    {
+      name: "Rohan D.",
+      role: "High School Student",
+      content: "The 12th Standard percentage tracking is incredibly accurate. It identified exactly where my physics concepts were weak and pushed the right mock tests.",
+      rating: 5,
+      image: "/people_1.jpeg"
+    },
+    {
+      name: "Priya S.",
+      role: "College Freshman",
+      content: "I was failing Calculus until the multimodal intervention stepped in. The way it breaks down misconceptions instead of just marking 'wrong' changed everything.",
+      rating: 5,
+      image: "/people_2.jpeg"
+    },
+    {
+      name: "Amit K.",
+      role: "Final Year B.Tech",
+      content: "The mock interview prep feature is top tier. The active focus card literally kept me accountable every single day until I cleared my placement rounds.",
+      rating: 5,
+      image: "/people_3.jpeg"
+    }
+  ];
+
+  const handleNext = () => setActiveIndex((prev) => (prev + 1) % REVIEWS.length);
+  const handlePrev = () => setActiveIndex((prev) => (prev - 1 + REVIEWS.length) % REVIEWS.length);
+
+  const activeReview = REVIEWS[activeIndex];
+
+  return (
+    <div className="w-full max-w-4xl mx-auto flex flex-col items-center text-center mt-8">
+      <div className="flex gap-1 mb-8">
+        {[...Array(activeReview.rating)].map((_, j) => (
+          <Star key={j} className="w-5 h-5 fill-slate-900 text-slate-900" />
+        ))}
+      </div>
+      
+      {/* Top: Quote */}
+      <div className="h-48 md:h-32 flex items-center justify-center relative w-full px-4">
+        <AnimatePresence mode="wait">
+          <motion.p
+            key={activeIndex}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+            className="text-xl md:text-2xl text-slate-800 leading-relaxed font-medium absolute w-full"
+          >
+            "{activeReview.content}"
+          </motion.p>
+        </AnimatePresence>
+      </div>
+
+      {/* Middle: Name & Role */}
+      <div className="mt-8 mb-12 h-16">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeIndex}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <p className="font-bold text-slate-900 text-lg">{activeReview.name}</p>
+            <p className="text-slate-500">{activeReview.role}</p>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Bottom: Avatars & Controls */}
+      <div className="flex items-center gap-8">
+        <button onClick={handlePrev} className="p-3 rounded-full hover:bg-slate-100 transition-colors focus:outline-none">
+          <ChevronLeft className="w-6 h-6 text-slate-600" />
+        </button>
+
+        <div className="flex items-center gap-6">
+          {REVIEWS.map((review, idx) => {
+            const isActive = idx === activeIndex;
+            return (
+              <button key={idx} onClick={() => setActiveIndex(idx)} className="relative focus:outline-none flex items-center justify-center w-16 h-16">
+                <img 
+                  src={review.image} 
+                  alt={review.name}
+                  className={`w-full h-full rounded-full object-cover transition-all duration-500 ${
+                    isActive 
+                      ? "scale-110 opacity-100 grayscale-0 ring-2 ring-indigo-500 ring-offset-4" 
+                      : "scale-90 opacity-50 grayscale hover:grayscale-0 hover:opacity-75"
+                  }`} 
+                />
+              </button>
+            );
+          })}
+        </div>
+
+        <button onClick={handleNext} className="p-3 rounded-full hover:bg-slate-100 transition-colors focus:outline-none">
+          <ChevronRight className="w-6 h-6 text-slate-600" />
+        </button>
+      </div>
+    </div>
+  );
+}
 
 const fadeUpVariant: Variants = {
   hidden: { opacity: 0, y: 40 },
@@ -62,9 +202,22 @@ export default function LandingPage() {
           variants={staggerContainer}
           className="max-w-3xl"
         >
-          <motion.h1 variants={fadeUpVariant} className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 mb-6">
-            Welcome to CleverBook
-          </motion.h1>
+          <div className="w-screen overflow-hidden mb-8 relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw]">
+            <motion.div 
+              className="flex whitespace-nowrap text-5xl md:text-7xl tracking-tight text-slate-900 w-max"
+              animate={{ x: ["0%", "-50%"] }}
+              transition={{ repeat: Infinity, ease: "linear", duration: 15 }}
+            >
+              {[0, 1, 2, 3, 4, 5].map((_, i) => (
+                <div key={i} className="flex items-center gap-x-4 px-4">
+                  <span className={`${playfair.className} font-normal`}>Welcome</span>
+                  <span className={`${playfair.className} font-medium`}>to</span>
+                  <span className="font-extrabold">CleverBook</span>
+                  <span className="text-slate-400 mx-4">•</span>
+                </div>
+              ))}
+            </motion.div>
+          </div>
           <motion.p variants={fadeUpVariant} className="text-lg md:text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">
             Your personalized AI learning environment. We diagnose the root of your cognitive misconceptions and adapt to your unique educational background, ensuring every study session is hyper-focused and ruthlessly effective.
           </motion.p>
@@ -98,19 +251,7 @@ export default function LandingPage() {
               </motion.p>
             </div>
             <motion.div variants={fadeUpVariant} className="relative">
-              {/* Abstract Metric Card Stack Placeholder */}
-              <div className="relative w-full aspect-square md:aspect-[4/3] rounded-3xl bg-slate-50 border border-slate-200 overflow-hidden flex items-center justify-center p-8 shadow-inner">
-                 <div className="absolute top-10 left-10 w-48 h-32 bg-white rounded-2xl shadow-sm border border-slate-100 z-10 transform -rotate-6"></div>
-                 <div className="absolute bottom-12 right-12 w-56 h-40 bg-white rounded-2xl shadow-md border border-slate-100 z-20 transform rotate-3 flex flex-col p-4 justify-between">
-                    <div className="h-4 w-1/2 bg-slate-100 rounded-full"></div>
-                    <div className="flex gap-2 items-end">
-                      <div className="h-16 w-8 bg-indigo-50 rounded-t-sm"></div>
-                      <div className="h-24 w-8 bg-indigo-100 rounded-t-sm"></div>
-                      <div className="h-20 w-8 bg-indigo-500 rounded-t-sm"></div>
-                    </div>
-                 </div>
-                 <div className="absolute inset-0 bg-gradient-to-tr from-slate-100/50 to-transparent pointer-events-none"></div>
-              </div>
+              <StackedImageCarousel />
             </motion.div>
           </motion.div>
         </div>
@@ -183,49 +324,7 @@ export default function LandingPage() {
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900">People's Review</h2>
           </motion.div>
 
-          <motion.div 
-            initial="hidden" 
-            whileInView="visible" 
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6"
-          >
-            {[
-              {
-                name: "Rohan D.",
-                role: "High School Student",
-                content: "The 12th Standard percentage tracking is incredibly accurate. It identified exactly where my physics concepts were weak and pushed the right mock tests.",
-                rating: 5
-              },
-              {
-                name: "Priya S.",
-                role: "College Freshman",
-                content: "I was failing Calculus until the multimodal intervention stepped in. The way it breaks down misconceptions instead of just marking 'wrong' changed everything.",
-                rating: 5
-              },
-              {
-                name: "Amit K.",
-                role: "Final Year B.Tech",
-                content: "The mock interview prep feature is top tier. The active focus card literally kept me accountable every single day until I cleared my placement rounds.",
-                rating: 5
-              }
-            ].map((review, i) => (
-              <motion.div key={i} variants={fadeUpVariant} className="bg-slate-50 border border-slate-100 rounded-2xl p-8 flex flex-col justify-between">
-                <div>
-                  <div className="flex gap-1 mb-4">
-                    {[...Array(review.rating)].map((_, j) => (
-                      <Star key={j} className="w-4 h-4 fill-slate-900 text-slate-900" />
-                    ))}
-                  </div>
-                  <p className="text-slate-700 leading-relaxed mb-8">"{review.content}"</p>
-                </div>
-                <div>
-                  <p className="font-bold text-slate-900">{review.name}</p>
-                  <p className="text-sm text-slate-500">{review.role}</p>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
+          <InteractiveReviewCarousel />
         </div>
       </section>
 

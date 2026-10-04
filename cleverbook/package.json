@@ -11,17 +11,22 @@
   "dependencies": {
     "@react-three/drei": "^10.7.9",
     "@react-three/fiber": "^9.8.1",
+    "@xyflow/react": "^12.12.0",
     "clsx": "^2.1.1",
+    "dagre": "^0.8.5",
     "framer-motion": "^14.0.0",
+    "katex": "^0.19.0",
     "lucide-react": "^1.51.0",
     "next": "16.3.8",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "react-latex-next": "^3.0.0",
     "tailwind-merge": "^3.7.0",
     "three": "^0.186.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/dagre": "^0.7.54",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

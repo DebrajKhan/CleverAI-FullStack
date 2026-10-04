@@ -5,7 +5,7 @@ export async function loginAction(email: string, password: string) {
     const fd = new URLSearchParams();
     fd.append('username', email);
     fd.append('password', password);
-    const res = await fetch("http://localhost:8000/api/v1/users/login", {
+    const res = await fetch("https://cleverbook-backend.onrender.com/api/v1/users/login", {
         method: "POST",
         headers: {
             "Content-Type": "application/x-www-form-urlencoded"
@@ -22,7 +22,7 @@ export async function loginAction(email: string, password: string) {
 }
 
 export async function signupAction(payload: any) {
-    const res = await fetch("http://localhost:8000/api/v1/users/signup", {
+    const res = await fetch("https://cleverbook-backend.onrender.com/api/v1/users/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -38,7 +38,7 @@ export async function getSyllabusAction() {
     const token = cookieStore.get("token")?.value;
     if (!token) return { success: false, error: "No token" };
 
-    const res = await fetch("http://localhost:8000/api/v1/syllabus/", {
+    const res = await fetch("https://cleverbook-backend.onrender.com/api/v1/syllabus/", {
         headers: { "Authorization": `Bearer ${token}` }
     });
     if (res.ok) {
@@ -52,7 +52,7 @@ export async function getMetricsAction() {
     const token = cookieStore.get("token")?.value;
     if (!token) return { success: false, error: "No token" };
 
-    const res = await fetch("http://localhost:8000/api/v1/metrics/coverage", {
+    const res = await fetch("https://cleverbook-backend.onrender.com/api/v1/metrics/coverage", {
         headers: { "Authorization": `Bearer ${token}` }
     });
     if (res.ok) {
@@ -66,7 +66,7 @@ export async function toggleSubtopicAction(subtopicId: string, completed: boolea
     const token = cookieStore.get("token")?.value;
     if (!token) return { success: false, error: "No token" };
 
-    const res = await fetch(`http://localhost:8000/api/v1/syllabus/toggle_subtopic?subtopic_id=${subtopicId}&completed=${completed}`, {
+    const res = await fetch(`https://cleverbook-backend.onrender.com/api/v1/syllabus/toggle_subtopic?subtopic_id=${subtopicId}&completed=${completed}`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${token}` }
     });
@@ -81,7 +81,7 @@ export async function getAssessmentQuestionsAction(assessmentId: string) {
     const token = cookieStore.get("token")?.value;
     if (!token) return { success: false, error: "No token" };
 
-    const res = await fetch(`http://localhost:8000/api/v1/assessments/${assessmentId}/questions`, {
+    const res = await fetch(`https://cleverbook-backend.onrender.com/api/v1/assessments/${assessmentId}/questions`, {
         headers: { "Authorization": `Bearer ${token}` }
     });
     if (res.ok) {

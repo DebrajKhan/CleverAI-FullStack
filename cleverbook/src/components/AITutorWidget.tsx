@@ -8,13 +8,13 @@ import { AnimatedArchitectureCanvas } from "@/components/tutor/AnimatedArchitect
 export function AITutorWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [phase, setPhase] = useState<0 | 1 | 2>(0);
-  
+
   const [question, setQuestion] = useState("");
   const [studentAnswer, setStudentAnswer] = useState("");
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [diagnosis, setDiagnosis] = useState<{ is_correct: boolean; full_text: string } | null>(null);
-  
+
   const [isVisualizing, setIsVisualizing] = useState(false);
   const [visualData, setVisualData] = useState<{ full_text: string } | null>(null);
   const [viewMode, setViewMode] = useState<'diagram' | 'raw'>('diagram');
@@ -23,7 +23,7 @@ export function AITutorWidget() {
     if (!question.trim() || !studentAnswer.trim()) return;
     setIsLoading(true);
     try {
-      const res = await fetch("http://localhost:8000/api/v1/tutor/diagnose", {
+      const res = await fetch("https://cleverbook-backend.onrender.com/api/v1/tutor/diagnose", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question, student_answer: studentAnswer })
@@ -46,13 +46,13 @@ export function AITutorWidget() {
     setPhase(2);
     setIsVisualizing(true);
     try {
-      const res = await fetch("http://localhost:8000/api/v1/tutor/visualize", {
+      const res = await fetch("https://cleverbook-backend.onrender.com/api/v1/tutor/visualize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          question, 
+        body: JSON.stringify({
+          question,
           student_answer: studentAnswer,
-          misconception: diagnosis.full_text 
+          misconception: diagnosis.full_text
         })
       });
       if (!res.ok) throw new Error("Server Error");
@@ -65,54 +65,54 @@ export function AITutorWidget() {
       setIsVisualizing(false);
     }
   };
-  
+
   const resetTutor = () => {
-     setPhase(0);
-     setQuestion("");
-     setStudentAnswer("");
-     setDiagnosis(null);
-     setVisualData(null);
+    setPhase(0);
+    setQuestion("");
+    setStudentAnswer("");
+    setDiagnosis(null);
+    setVisualData(null);
   };
 
   const renderDiagnosis = (text: string) => {
-     return text.split('\n').map((line, i) => {
-        if (line.startsWith('### ')) {
-           return <h4 key={i} className="font-bold text-slate-900 mt-4 mb-2">{line.replace('### ', '')}</h4>;
-        } else if (line.startsWith('**') && line.includes('**', 2)) {
-           return <p key={i} className="text-slate-800 my-1 font-medium">{line.replaceAll('**', '')}</p>;
-        } else if (line.trim().length > 0) {
-           return <p key={i} className="text-slate-600 my-1 text-sm">{line}</p>;
-        }
-        return <br key={i} />;
-     });
+    return text.split('\n').map((line, i) => {
+      if (line.startsWith('### ')) {
+        return <h4 key={i} className="font-bold text-slate-900 mt-4 mb-2">{line.replace('### ', '')}</h4>;
+      } else if (line.startsWith('**') && line.includes('**', 2)) {
+        return <p key={i} className="text-slate-800 my-1 font-medium">{line.replaceAll('**', '')}</p>;
+      } else if (line.trim().length > 0) {
+        return <p key={i} className="text-slate-600 my-1 text-sm">{line}</p>;
+      }
+      return <br key={i} />;
+    });
   };
 
   const renderVisualizer = (text: string) => {
-     const parts = text.split("```mermaid");
-     if (parts.length > 1) {
-        const afterMermaid = parts[1].split("```");
-        const mermaidCode = afterMermaid[0];
-        const breakdown = afterMermaid.length > 1 ? afterMermaid[1] : "";
-        
-        return (
-          <div className="space-y-4">
-             {viewMode === 'diagram' ? (
-                <AnimatedArchitectureCanvas mermaidCode={mermaidCode} />
-             ) : (
-                <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 overflow-x-auto">
-                  <div className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wider">System Architecture (Mermaid.js)</div>
-                  <pre className="text-[11px] leading-snug text-slate-800 font-mono">
-                    {mermaidCode.trim()}
-                  </pre>
-                </div>
-             )}
-             <div>
-                {renderDiagnosis(breakdown.trim())}
-             </div>
+    const parts = text.split("```mermaid");
+    if (parts.length > 1) {
+      const afterMermaid = parts[1].split("```");
+      const mermaidCode = afterMermaid[0];
+      const breakdown = afterMermaid.length > 1 ? afterMermaid[1] : "";
+
+      return (
+        <div className="space-y-4">
+          {viewMode === 'diagram' ? (
+            <AnimatedArchitectureCanvas mermaidCode={mermaidCode} />
+          ) : (
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 overflow-x-auto">
+              <div className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wider">System Architecture (Mermaid.js)</div>
+              <pre className="text-[11px] leading-snug text-slate-800 font-mono">
+                {mermaidCode.trim()}
+              </pre>
+            </div>
+          )}
+          <div>
+            {renderDiagnosis(breakdown.trim())}
           </div>
-        );
-     }
-     return renderDiagnosis(text);
+        </div>
+      );
+    }
+    return renderDiagnosis(text);
   };
 
   return (
@@ -145,7 +145,7 @@ export function AITutorWidget() {
                   <p className="text-xs text-slate-500 font-medium">Adaptive Diagnostic Engine</p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setIsOpen(false)}
                 className="p-2 hover:bg-slate-50 rounded-lg text-slate-400 hover:text-slate-900 transition-colors"
               >
@@ -158,7 +158,7 @@ export function AITutorWidget() {
               <AnimatePresence mode="wait">
                 {/* Phase 0: Input */}
                 {phase === 0 && (
-                  <motion.div 
+                  <motion.div
                     key="phase0"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -174,7 +174,7 @@ export function AITutorWidget() {
                         className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900 transition-colors resize-none h-28"
                       />
                     </div>
-                    
+
                     <div className="space-y-2">
                       <label className="block text-sm font-semibold text-slate-700 mb-1">Student's Answer</label>
                       <textarea
@@ -189,18 +189,17 @@ export function AITutorWidget() {
 
                 {/* Phase 1: Diagnosis */}
                 {phase === 1 && diagnosis && (
-                  <motion.div 
+                  <motion.div
                     key="phase1"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 20 }}
                     className="space-y-5"
                   >
-                    <div className={`p-4 rounded-xl border flex gap-3 ${
-                      diagnosis.is_correct 
-                        ? 'bg-emerald-50 border-emerald-100' 
-                        : 'bg-red-50 border-red-100'
-                    }`}>
+                    <div className={`p-4 rounded-xl border flex gap-3 ${diagnosis.is_correct
+                      ? 'bg-emerald-50 border-emerald-100'
+                      : 'bg-red-50 border-red-100'
+                      }`}>
                       {diagnosis.is_correct ? (
                         <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
                       ) : (
@@ -222,7 +221,7 @@ export function AITutorWidget() {
 
                 {/* Phase 2: Visualizer */}
                 {phase === 2 && (
-                  <motion.div 
+                  <motion.div
                     key="phase2"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}

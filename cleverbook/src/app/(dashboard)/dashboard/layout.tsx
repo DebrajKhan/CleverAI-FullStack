@@ -1,3 +1,5 @@
+import { AITutorWidget } from "@/components/AITutorWidget";
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-slate-50">
@@ -7,6 +9,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="w-8 h-8 rounded-full bg-slate-200" />
       </nav>
       {children}
+      <AITutorWidget />
     </div>
   );
 }

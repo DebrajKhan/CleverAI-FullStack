@@ -1,4 +1,5 @@
 "use client";
+import { toggleSubtopicAction } from "@/app/actions";
 
 import { createContext, useContext, useState, useMemo } from "react";
 import { SyllabusNode } from "@/types/models";
@@ -13,8 +14,8 @@ interface SyllabusContextType {
 
 export const SyllabusContext = createContext<SyllabusContextType | undefined>(undefined);
 
-export function SyllabusProvider({ children, syllabus }: { children: React.ReactNode, syllabus: SyllabusNode[] }) {
-  const [completedSubtopics, setCompletedSubtopics] = useState<Record<string, boolean>>({});
+export function SyllabusProvider({ children, syllabus, initialCompleted = {} }: { children: React.ReactNode, syllabus: SyllabusNode[], initialCompleted?: Record<string, boolean> }) {
+  const [completedSubtopics, setCompletedSubtopics] = useState<Record<string, boolean>>(initialCompleted);
 
   const totalSubtopics = useMemo(() => {
     let count = 0;
@@ -68,11 +69,25 @@ export function SyllabusProvider({ children, syllabus }: { children: React.React
     return { activeTitle, activePercentage };
   }, [syllabus, completedSubtopics]);
 
-  const toggleSubtopic = (id: string) => {
+  const toggleSubtopic = async (id: string) => {
+    const isCurrentlyCompleted = completedSubtopics[id] || false;
+    const nextCompleted = !isCurrentlyCompleted;
+    
+    // Optimistic update
     setCompletedSubtopics(prev => ({
       ...prev,
-      [id]: !prev[id]
+      [id]: nextCompleted
     }));
+    
+    const res = await toggleSubtopicAction(id, nextCompleted);
+    if (!res.success) {
+      // Revert if failed
+      setCompletedSubtopics(prev => ({
+        ...prev,
+        [id]: isCurrentlyCompleted
+      }));
+      console.error("Failed to toggle subtopic:", res.error);
+    }
   };
 
   return (

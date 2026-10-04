@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ProfileType } from "@/types/models";
+import { signupAction } from "@/app/actions";
 
 const variants = {
   enter: (direction: number) => ({
@@ -23,7 +24,7 @@ const variants = {
   }),
 };
 
-const transition = { type: "spring", stiffness: 300, damping: 30 };
+const transition = { type: "spring" as const, stiffness: 300, damping: 30 };
 
 export function SignupWizard() {
   const [step, setStep] = useState(1);
@@ -32,6 +33,18 @@ export function SignupWizard() {
   // Form states
   const [profileType, setProfileType] = useState<ProfileType>("college");
   const [yearSem, setYearSem] = useState("1");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [institutionName, setInstitutionName] = useState("");
+  const [stream, setStream] = useState("");
+  const [percentage, setPercentage] = useState("");
+  
+  const [schoolName, setSchoolName] = useState("");
+  const [standard, setStandard] = useState("9th");
+  const [schoolStream, setSchoolStream] = useState("science");
+  const [schoolPercentage, setSchoolPercentage] = useState("");
 
   const nextStep = () => {
     setDirection(1);
@@ -43,12 +56,39 @@ export function SignupWizard() {
     setStep((prev) => prev - 1);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (step < 4) {
       nextStep();
     } else {
-      window.location.href = "/dashboard";
+      const activeTier = profileType === "college" ? "College" : "School";
+      const payload: any = {
+        email: email,
+        password: password,
+        first_name: firstName,
+        last_name: lastName,
+        tier: activeTier,
+      };
+
+      if (activeTier === "College") {
+        payload.institution_name = institutionName;
+        payload.stream = stream;
+        payload.year_sem = yearSem;
+        payload.percentage = percentage;
+      } else {
+        payload.institution_name = schoolName;
+        payload.stream = schoolStream;
+        payload.year_sem = standard;
+        payload.percentage = schoolPercentage;
+      }
+
+      console.log("Signup Payload:", payload);
+      const res = await signupAction(payload);
+      if (res.success) {
+        window.location.href = "/dashboard";
+      } else {
+        alert("Error: " + res.error);
+      }
     }
   };
 
@@ -75,11 +115,11 @@ export function SignupWizard() {
               <h2 className="text-xl font-bold text-slate-900 mb-2">Create your account</h2>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Email Address</label>
-                <input required type="email" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all text-sm" placeholder="you@example.com" />
+                <input name="email" required type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all text-sm" placeholder="you@example.com" />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Password</label>
-                <input required type="password" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all text-sm" placeholder="Create new password" />
+                <input name="password" required type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all text-sm" placeholder="Create new password" />
               </div>
             </div>
           )}
@@ -89,7 +129,7 @@ export function SignupWizard() {
               <h2 className="text-xl font-bold text-slate-900 mb-2">What's your first name?</h2>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">First Name</label>
-                <input required type="text" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all text-sm" placeholder="e.g. Debraj" />
+                <input name="firstName" required type="text" value={firstName} onChange={e => setFirstName(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all text-sm" placeholder="e.g. Debraj" />
               </div>
             </div>
           )}
@@ -99,7 +139,7 @@ export function SignupWizard() {
               <h2 className="text-xl font-bold text-slate-900 mb-2">And your last name?</h2>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Last Name</label>
-                <input required type="text" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all text-sm" placeholder="e.g. Khan" />
+                <input name="lastName" required type="text" value={lastName} onChange={e => setLastName(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all text-sm" placeholder="e.g. Khan" />
               </div>
             </div>
           )}
@@ -144,11 +184,11 @@ export function SignupWizard() {
                   >
                     <div className="space-y-1">
                       <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Institution Name</label>
-                      <input required type="text" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all text-sm" placeholder="e.g. University of Engineering & Management (UEM), Kolkata" />
+                      <input required type="text" value={institutionName} onChange={e => setInstitutionName(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all text-sm" placeholder="e.g. University of Engineering & Management (UEM), Kolkata" />
                     </div>
                     <div className="space-y-1">
                       <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Stream</label>
-                      <input required type="text" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all text-sm" placeholder="e.g. B.Tech CSE" />
+                      <input required type="text" value={stream} onChange={e => setStream(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all text-sm" placeholder="e.g. B.Tech CSE" />
                     </div>
                     <div className="flex gap-4">
                       <div className="space-y-1 flex-1">
@@ -185,6 +225,8 @@ export function SignupWizard() {
                           type="number" 
                           step="0.01" 
                           max={yearSem === "1" ? "100" : "10"} 
+                          value={percentage}
+                          onChange={e => setPercentage(e.target.value)}
                           className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all text-sm" 
                           placeholder={yearSem === "1" ? "e.g. 88%" : "e.g. 8.5"} 
                         />
@@ -202,12 +244,12 @@ export function SignupWizard() {
                   >
                     <div className="space-y-1">
                       <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">School Name</label>
-                      <input required type="text" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all text-sm" placeholder="e.g. Delhi Public School" />
+                      <input required type="text" value={schoolName} onChange={e => setSchoolName(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all text-sm" placeholder="e.g. Delhi Public School" />
                     </div>
                     <div className="flex gap-4">
                       <div className="space-y-1 flex-1">
                         <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Standard</label>
-                        <select required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all text-sm">
+                        <select required value={standard} onChange={e => setStandard(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all text-sm">
                           <option value="9th">9th</option>
                           <option value="10th">10th</option>
                           <option value="11th">11th</option>
@@ -216,7 +258,7 @@ export function SignupWizard() {
                       </div>
                       <div className="space-y-1 flex-1">
                         <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Stream</label>
-                        <select required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all text-sm">
+                        <select required value={schoolStream} onChange={e => setSchoolStream(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all text-sm">
                           <option value="science">Science</option>
                           <option value="commerce">Commerce</option>
                           <option value="arts">Arts</option>
@@ -226,7 +268,7 @@ export function SignupWizard() {
                     </div>
                     <div className="space-y-1">
                       <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Past Percentage</label>
-                      <input required type="number" max="100" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all text-sm" placeholder="e.g. 92" />
+                      <input required type="number" max="100" value={schoolPercentage} onChange={e => setSchoolPercentage(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all text-sm" placeholder="e.g. 92" />
                     </div>
                   </motion.div>
                 )}

@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import { BookOpen, Sparkles, Star } from "lucide-react";
 import { AntigravityCard } from "@/components/dashboard/HeroMetrics";
 
-const fadeUpVariant = {
+const fadeUpVariant: Variants = {
   hidden: { opacity: 0, y: 40 },
   visible: { 
     opacity: 1, 
@@ -14,7 +14,7 @@ const fadeUpVariant = {
   }
 };
 
-const staggerContainer = {
+const staggerContainer: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -45,7 +45,7 @@ export default function LandingPage() {
           </nav>
           
           <div className="flex items-center gap-4 text-sm font-semibold">
-            <Link href="/onboarding" className="text-slate-600 hover:text-slate-900 transition-colors hidden sm:block">Sign In</Link>
+            <Link href="/login" className="text-slate-600 hover:text-slate-900 transition-colors hidden sm:block">Sign In</Link>
             <Link href="/onboarding" className="bg-slate-900 text-white px-5 py-2.5 rounded-lg shadow-sm hover:shadow-md transition-shadow">
               Sign Up
             </Link>
